@@ -26,14 +26,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { insertInvoiceSchema, type InsertInvoice, type Invoice } from "@shared/schema";
+import { insertInvoiceSchema, type InsertInvoice, type Invoice, type InvoiceWithProject } from "@shared/schema";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 
 interface InvoiceFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  invoice?: Invoice;
+  invoice?: InvoiceWithProject;
 }
 
 export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceFormProps) {
