@@ -10,7 +10,6 @@ import Clients from "@/pages/clients";
 import Projects from "@/pages/projects";
 import Invoices from "@/pages/invoices";
 import Reports from "@/pages/reports";
-import Profile from "@/pages/profile";
 import NotFound from "@/pages/not-found";
 
 function Layout({ children }: { children: React.ReactNode }) {
@@ -36,7 +35,6 @@ function Router() {
         <Route path="/projects" component={Projects} />
         <Route path="/invoices" component={Invoices} />
         <Route path="/reports" component={Reports} />
-        <Route path="/profile" component={Profile} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

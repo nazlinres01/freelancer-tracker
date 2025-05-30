@@ -7,7 +7,6 @@ const navigation = [
   { name: "Projects", href: "/projects", icon: Briefcase },
   { name: "Invoices", href: "/invoices", icon: FileText },
   { name: "Reports", href: "/reports", icon: BarChart3 },
-  { name: "Profile", href: "/profile", icon: User },
 ];
 
 export default function Sidebar() {
@@ -45,16 +44,7 @@ export default function Sidebar() {
           })}
         </nav>
 
-        {/* User Profile */}
-        <div className="flex items-center px-4 py-4 border-t border-border">
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-            <span className="text-primary-foreground text-sm font-medium">JD</span>
-          </div>
-          <div className="ml-3">
-            <p className="text-sm font-medium text-foreground">John Doe</p>
-            <p className="text-xs text-muted-foreground">Freelancer</p>
-          </div>
-        </div>
+
       </div>
     </div>
   );

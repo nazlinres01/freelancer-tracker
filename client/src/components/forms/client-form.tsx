@@ -21,6 +21,7 @@ import {
 import { insertClientSchema, type InsertClient, type Client } from "@shared/schema";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 interface ClientFormProps {
   open: boolean;
@@ -35,13 +36,33 @@ export default function ClientForm({ open, onOpenChange, client }: ClientFormPro
   const form = useForm<InsertClient>({
     resolver: zodResolver(insertClientSchema),
     defaultValues: {
-      name: client?.name || "",
-      email: client?.email || "",
-      phone: client?.phone || "",
-      company: client?.company || "",
-      address: client?.address || "",
+      name: "",
+      email: "",
+      phone: "",
+      company: "",
+      address: "",
     },
   });
+
+  useEffect(() => {
+    if (client) {
+      form.reset({
+        name: client.name || "",
+        email: client.email || "",
+        phone: client.phone || "",
+        company: client.company || "",
+        address: client.address || "",
+      });
+    } else {
+      form.reset({
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+        address: "",
+      });
+    }
+  }, [client, form]);
 
   const createMutation = useMutation({
     mutationFn: api.clients.create,

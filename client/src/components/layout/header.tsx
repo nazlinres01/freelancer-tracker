@@ -1,7 +1,8 @@
 import { useLocation } from "wouter";
-import { Bell, Search, Menu } from "lucide-react";
+import { Bell, Search, Menu, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 
 const pageNames: { [key: string]: string } = {
@@ -51,6 +52,47 @@ export default function Header() {
           >
             <Bell className="w-5 h-5" />
           </Button>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost" className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <span className="text-primary-foreground text-sm font-medium">JD</span>
+                </div>
+                <span className="text-sm font-medium text-foreground">John Doe</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Profile</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                    <User className="w-8 h-8 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">John Doe</h3>
+                    <p className="text-muted-foreground">Freelancer</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-sm font-medium">Email</label>
+                    <p className="text-sm text-muted-foreground">john.doe@example.com</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Phone</label>
+                    <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Location</label>
+                    <p className="text-sm text-muted-foreground">New York, USA</p>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </header>
