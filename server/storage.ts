@@ -432,7 +432,7 @@ export class MemStorage implements IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getClients(): Promise<Client[]> {
-    return await db.select().from(clients);
+    return await db.select().from(clients).orderBy(desc(clients.id));
   }
 
   async getClient(id: number): Promise<Client | undefined> {
@@ -466,7 +466,8 @@ export class DatabaseStorage implements IStorage {
     const result = await db
       .select()
       .from(projects)
-      .leftJoin(clients, eq(projects.clientId, clients.id));
+      .leftJoin(clients, eq(projects.clientId, clients.id))
+      .orderBy(desc(projects.id));
     
     return result.map(row => ({
       ...row.projects,
@@ -520,7 +521,8 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(invoices)
       .leftJoin(clients, eq(invoices.clientId, clients.id))
-      .leftJoin(projects, eq(invoices.projectId, projects.id));
+      .leftJoin(projects, eq(invoices.projectId, projects.id))
+      .orderBy(desc(invoices.id));
     
     return result.map(row => ({
       ...row.invoices,
