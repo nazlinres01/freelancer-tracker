@@ -75,9 +75,16 @@ export default function Invoices() {
     setIsFormOpen(true);
   };
 
-  const handleDeleteInvoice = (id: number) => {
-    if (confirm("Are you sure you want to delete this invoice?")) {
-      deleteMutation.mutate(id);
+  const handleDeleteInvoice = (invoice: InvoiceWithProject) => {
+    setInvoiceToDelete(invoice);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (invoiceToDelete) {
+      deleteMutation.mutate(invoiceToDelete.id);
+      setDeleteDialogOpen(false);
+      setInvoiceToDelete(null);
     }
   };
 
@@ -293,7 +300,7 @@ export default function Invoices() {
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleDeleteInvoice(invoice.id)}
+                            onClick={() => handleDeleteInvoice(invoice)}
                             className="text-destructive"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
@@ -332,6 +339,14 @@ export default function Invoices() {
       <SimpleInvoiceForm
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
+      />
+
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Invoice"
+        description={`Are you sure you want to delete invoice "${invoiceToDelete?.invoiceNumber}"? This action cannot be undone.`}
       />
     </div>
   );
