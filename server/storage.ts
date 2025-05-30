@@ -12,6 +12,8 @@ import {
   type InvoiceWithClient,
   type InvoiceWithProject
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // Clients
@@ -428,4 +430,234 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getClients(): Promise<Client[]> {
+    return await db.select().from(clients);
+  }
+
+  async getClient(id: number): Promise<Client | undefined> {
+    const [client] = await db.select().from(clients).where(eq(clients.id, id));
+    return client || undefined;
+  }
+
+  async createClient(insertClient: InsertClient): Promise<Client> {
+    const [client] = await db
+      .insert(clients)
+      .values(insertClient)
+      .returning();
+    return client;
+  }
+
+  async updateClient(id: number, updateData: Partial<InsertClient>): Promise<Client | undefined> {
+    const [client] = await db
+      .update(clients)
+      .set(updateData)
+      .where(eq(clients.id, id))
+      .returning();
+    return client || undefined;
+  }
+
+  async deleteClient(id: number): Promise<boolean> {
+    const result = await db.delete(clients).where(eq(clients.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getProjects(): Promise<ProjectWithClient[]> {
+    const result = await db
+      .select()
+      .from(projects)
+      .leftJoin(clients, eq(projects.clientId, clients.id));
+    
+    return result.map(row => ({
+      ...row.projects,
+      client: row.clients!
+    }));
+  }
+
+  async getProject(id: number): Promise<ProjectWithClient | undefined> {
+    const [result] = await db
+      .select()
+      .from(projects)
+      .leftJoin(clients, eq(projects.clientId, clients.id))
+      .where(eq(projects.id, id));
+    
+    if (!result) return undefined;
+    
+    return {
+      ...result.projects,
+      client: result.clients!
+    };
+  }
+
+  async getProjectsByClient(clientId: number): Promise<Project[]> {
+    return await db.select().from(projects).where(eq(projects.clientId, clientId));
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const [project] = await db
+      .insert(projects)
+      .values(insertProject)
+      .returning();
+    return project;
+  }
+
+  async updateProject(id: number, updateData: Partial<InsertProject>): Promise<Project | undefined> {
+    const [project] = await db
+      .update(projects)
+      .set(updateData)
+      .where(eq(projects.id, id))
+      .returning();
+    return project || undefined;
+  }
+
+  async deleteProject(id: number): Promise<boolean> {
+    const result = await db.delete(projects).where(eq(projects.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getInvoices(): Promise<InvoiceWithProject[]> {
+    const result = await db
+      .select()
+      .from(invoices)
+      .leftJoin(clients, eq(invoices.clientId, clients.id))
+      .leftJoin(projects, eq(invoices.projectId, projects.id));
+    
+    return result.map(row => ({
+      ...row.invoices,
+      client: row.clients!,
+      project: row.projects || null
+    }));
+  }
+
+  async getInvoice(id: number): Promise<InvoiceWithProject | undefined> {
+    const [result] = await db
+      .select()
+      .from(invoices)
+      .leftJoin(clients, eq(invoices.clientId, clients.id))
+      .leftJoin(projects, eq(invoices.projectId, projects.id))
+      .where(eq(invoices.id, id));
+    
+    if (!result) return undefined;
+    
+    return {
+      ...result.invoices,
+      client: result.clients!,
+      project: result.projects || null
+    };
+  }
+
+  async getInvoicesByClient(clientId: number): Promise<Invoice[]> {
+    return await db.select().from(invoices).where(eq(invoices.clientId, clientId));
+  }
+
+  async createInvoice(insertInvoice: InsertInvoice): Promise<Invoice> {
+    const [invoice] = await db
+      .insert(invoices)
+      .values({
+        ...insertInvoice,
+        invoiceNumber: `INV-${String(Date.now()).slice(-6)}`,
+      })
+      .returning();
+    return invoice;
+  }
+
+  async updateInvoice(id: number, updateData: Partial<InsertInvoice>): Promise<Invoice | undefined> {
+    const [invoice] = await db
+      .update(invoices)
+      .set(updateData)
+      .where(eq(invoices.id, id))
+      .returning();
+    return invoice || undefined;
+  }
+
+  async deleteInvoice(id: number): Promise<boolean> {
+    const result = await db.delete(invoices).where(eq(invoices.id, id));
+    return result.rowCount > 0;
+  }
+
+  async getDashboardStats(): Promise<{
+    totalEarnings: number;
+    activeClients: number;
+    pendingInvoices: number;
+    thisMonth: number;
+  }> {
+    // This would need more complex queries in a real implementation
+    // For now, return basic stats
+    const allClients = await db.select().from(clients);
+    const allInvoices = await db.select().from(invoices);
+    
+    const totalEarnings = allInvoices
+      .filter(i => i.status === 'paid')
+      .reduce((sum, i) => sum + parseFloat(i.amount), 0);
+    
+    const activeClients = allClients.length;
+    const pendingInvoices = allInvoices.filter(i => i.status === 'pending').length;
+    
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const thisMonth = allInvoices
+      .filter(i => {
+        const invoiceDate = new Date(i.issueDate);
+        return invoiceDate.getMonth() === currentMonth && 
+               invoiceDate.getFullYear() === currentYear &&
+               i.status === 'paid';
+      })
+      .reduce((sum, i) => sum + parseFloat(i.amount), 0);
+
+    return {
+      totalEarnings,
+      activeClients,
+      pendingInvoices,
+      thisMonth,
+    };
+  }
+
+  async getTopClientsByRevenue(limit = 5): Promise<Array<Client & { revenue: number; projectCount: number }>> {
+    // This would be a complex query - simplified for now
+    const allClients = await db.select().from(clients);
+    const allInvoices = await db.select().from(invoices);
+    const allProjects = await db.select().from(projects);
+    
+    return allClients
+      .map(client => {
+        const revenue = allInvoices
+          .filter(i => i.clientId === client.id && i.status === 'paid')
+          .reduce((sum, i) => sum + parseFloat(i.amount), 0);
+        
+        const projectCount = allProjects.filter(p => p.clientId === client.id).length;
+        
+        return { ...client, revenue, projectCount };
+      })
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, limit);
+  }
+
+  async getMonthlyEarnings(): Promise<Array<{ month: string; earnings: number }>> {
+    const allInvoices = await db.select().from(invoices);
+    const monthlyData: { [key: string]: number } = {};
+    
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    
+    months.forEach(month => {
+      monthlyData[month] = 0;
+    });
+    
+    allInvoices
+      .filter(i => i.status === 'paid')
+      .forEach(invoice => {
+        const date = new Date(invoice.paidDate || invoice.issueDate);
+        const monthIndex = date.getMonth();
+        if (monthIndex < 6) {
+          const monthName = months[monthIndex];
+          monthlyData[monthName] += parseFloat(invoice.amount);
+        }
+      });
+    
+    return months.map(month => ({
+      month,
+      earnings: monthlyData[month],
+    }));
+  }
+}
+
+export const storage = new DatabaseStorage();
