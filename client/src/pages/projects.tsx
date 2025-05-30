@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, Search, MoreHorizontal, Edit, Trash2, User, DollarSign, Calendar } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Edit, Trash2, User, DollarSign, Calendar, CheckCircle, Play, Pause } from "lucide-react";
 import ProjectForm from "@/components/forms/project-form";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -75,6 +75,29 @@ export default function Projects() {
     if (confirm("Are you sure you want to delete this project?")) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => api.projects.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/projects"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      toast({
+        title: "Success",
+        description: "Project status updated successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update project status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleStatusChange = (id: number, newStatus: string) => {
+    updateMutation.mutate({ id, data: { status: newStatus } });
   };
 
   const getStatusVariant = (status: string) => {
@@ -242,6 +265,24 @@ export default function Projects() {
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
+                          {project.status === "active" && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(project.id, "completed")}>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Mark Complete
+                            </DropdownMenuItem>
+                          )}
+                          {project.status === "completed" && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(project.id, "active")}>
+                              <Play className="w-4 h-4 mr-2" />
+                              Reactivate
+                            </DropdownMenuItem>
+                          )}
+                          {project.status === "active" && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(project.id, "paused")}>
+                              <Pause className="w-4 h-4 mr-2" />
+                              Pause
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem 
                             onClick={() => handleDeleteProject(project.id)}
                             className="text-destructive"

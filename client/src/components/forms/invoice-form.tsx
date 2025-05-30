@@ -57,13 +57,17 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
       amount: invoice?.amount || "",
       status: invoice?.status || "pending",
       issueDate: invoice?.issueDate ? new Date(invoice.issueDate) : new Date(),
-      dueDate: invoice?.dueDate ? new Date(invoice.dueDate) : new Date(),
+      dueDate: invoice?.dueDate ? new Date(invoice.dueDate) : (() => {
+        const date = new Date();
+        date.setDate(date.getDate() + 30); // Default 30 days from now
+        return date;
+      })(),
       description: invoice?.description || "",
     },
   });
 
   const selectedClientId = form.watch("clientId");
-  const clientProjects = projects?.filter(p => p.clientId === selectedClientId) || [];
+  const clientProjects = projects?.filter((p: any) => p.clientId === selectedClientId) || [];
 
   const createMutation = useMutation({
     mutationFn: api.invoices.create,
@@ -176,7 +180,7 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="">No project</SelectItem>
-                      {clientProjects.map((project) => (
+                      {clientProjects.map((project: any) => (
                         <SelectItem key={project.id} value={project.id.toString()}>
                           {project.title}
                         </SelectItem>
