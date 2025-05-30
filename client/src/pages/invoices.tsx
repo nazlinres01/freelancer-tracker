@@ -339,6 +339,7 @@ export default function Invoices() {
       <SimpleInvoiceForm
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
+        invoice={selectedInvoice}
       />
 
       <DeleteConfirmationDialog

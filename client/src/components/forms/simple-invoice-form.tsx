@@ -178,7 +178,11 @@ export default function SimpleInvoiceForm({ open, onOpenChange, invoice }: Simpl
       description: formData.description || undefined,
     };
 
-    createMutation.mutate(submitData);
+    if (invoice) {
+      updateMutation.mutate(submitData);
+    } else {
+      createMutation.mutate(submitData);
+    }
   };
 
   const handleClientChange = (value: string) => {
@@ -193,7 +197,7 @@ export default function SimpleInvoiceForm({ open, onOpenChange, invoice }: Simpl
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New Invoice</DialogTitle>
+          <DialogTitle>{invoice ? "Edit Invoice" : "Create New Invoice"}</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -305,9 +309,12 @@ export default function SimpleInvoiceForm({ open, onOpenChange, invoice }: Simpl
             </Button>
             <Button 
               type="submit" 
-              disabled={createMutation.isPending}
+              disabled={createMutation.isPending || updateMutation.isPending}
             >
-              {createMutation.isPending ? "Creating..." : "Create Invoice"}
+              {invoice 
+                ? (updateMutation.isPending ? "Updating..." : "Update Invoice")
+                : (createMutation.isPending ? "Creating..." : "Create Invoice")
+              }
             </Button>
           </div>
         </form>
