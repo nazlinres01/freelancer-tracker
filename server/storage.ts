@@ -66,6 +66,131 @@ export class MemStorage implements IStorage {
     this.currentProjectId = 1;
     this.currentInvoiceId = 1;
     this.invoiceCounter = 1;
+    
+    // Add sample data
+    this.initializeSampleData();
+  }
+
+  private async initializeSampleData() {
+    // Sample clients
+    const sampleClients = [
+      {
+        name: "Tech Solutions Inc",
+        email: "contact@techsolutions.com",
+        phone: "+1 (555) 123-4567",
+        company: "Tech Solutions Inc",
+        address: "123 Business Ave, New York, NY 10001"
+      },
+      {
+        name: "Digital Marketing Co",
+        email: "hello@digitalmarketing.com",
+        phone: "+1 (555) 987-6543",
+        company: "Digital Marketing Co",
+        address: "456 Marketing St, San Francisco, CA 94105"
+      },
+      {
+        name: "StartupXYZ",
+        email: "founder@startupxyz.com",
+        phone: "+1 (555) 456-7890",
+        company: "StartupXYZ",
+        address: "789 Innovation Blvd, Austin, TX 73301"
+      }
+    ];
+
+    for (const clientData of sampleClients) {
+      await this.createClient(clientData);
+    }
+
+    // Sample projects
+    const sampleProjects = [
+      {
+        title: "E-commerce Website Development",
+        description: "Building a modern e-commerce platform with React and Node.js",
+        clientId: 1,
+        status: "active" as const,
+        hourlyRate: "125",
+        totalBudget: "15000",
+        startDate: new Date('2024-01-15'),
+        endDate: new Date('2024-06-15')
+      },
+      {
+        title: "SEO Campaign Management",
+        description: "Complete SEO optimization and monthly campaign management",
+        clientId: 2,
+        status: "active" as const,
+        hourlyRate: "85",
+        totalBudget: "8500",
+        startDate: new Date('2024-02-01'),
+        endDate: new Date('2024-08-01')
+      },
+      {
+        title: "Mobile App Development",
+        description: "Cross-platform mobile app using React Native",
+        clientId: 3,
+        status: "completed" as const,
+        hourlyRate: "150",
+        totalBudget: "25000",
+        startDate: new Date('2023-09-01'),
+        endDate: new Date('2024-01-31')
+      }
+    ];
+
+    for (const projectData of sampleProjects) {
+      await this.createProject(projectData);
+    }
+
+    // Sample invoices
+    const sampleInvoices = [
+      {
+        clientId: 1,
+        projectId: 1,
+        amount: "5000",
+        status: "paid" as const,
+        issueDate: new Date('2024-01-30'),
+        dueDate: new Date('2024-02-29'),
+        description: "Website development - Phase 1"
+      },
+      {
+        clientId: 2,
+        projectId: 2,
+        amount: "2500",
+        status: "paid" as const,
+        issueDate: new Date('2024-02-15'),
+        dueDate: new Date('2024-03-15'),
+        description: "SEO Campaign - February"
+      },
+      {
+        clientId: 3,
+        projectId: 3,
+        amount: "12000",
+        status: "paid" as const,
+        issueDate: new Date('2024-01-15'),
+        dueDate: new Date('2024-02-14'),
+        description: "Mobile app development - Final payment"
+      },
+      {
+        clientId: 1,
+        projectId: 1,
+        amount: "5000",
+        status: "pending" as const,
+        issueDate: new Date('2024-03-01'),
+        dueDate: new Date('2024-03-31'),
+        description: "Website development - Phase 2"
+      },
+      {
+        clientId: 2,
+        projectId: 2,
+        amount: "2500",
+        status: "overdue" as const,
+        issueDate: new Date('2024-02-01'),
+        dueDate: new Date('2024-02-28'),
+        description: "SEO Campaign - January (overdue)"
+      }
+    ];
+
+    for (const invoiceData of sampleInvoices) {
+      await this.createInvoice(invoiceData);
+    }
   }
 
   // Clients
@@ -80,8 +205,12 @@ export class MemStorage implements IStorage {
   async createClient(insertClient: InsertClient): Promise<Client> {
     const id = this.currentClientId++;
     const client: Client = {
-      ...insertClient,
       id,
+      name: insertClient.name,
+      email: insertClient.email,
+      phone: insertClient.phone || null,
+      company: insertClient.company || null,
+      address: insertClient.address || null,
       createdAt: new Date(),
     };
     this.clients.set(id, client);
@@ -125,8 +254,11 @@ export class MemStorage implements IStorage {
   async createProject(insertProject: InsertProject): Promise<Project> {
     const id = this.currentProjectId++;
     const project: Project = {
-      ...insertProject,
       id,
+      title: insertProject.title,
+      description: insertProject.description || null,
+      clientId: insertProject.clientId,
+      status: insertProject.status || "active",
       hourlyRate: insertProject.hourlyRate || null,
       totalBudget: insertProject.totalBudget || null,
       startDate: insertProject.startDate || null,
@@ -155,7 +287,7 @@ export class MemStorage implements IStorage {
     const invoicesArray = Array.from(this.invoices.values());
     return invoicesArray.map(invoice => {
       const client = this.clients.get(invoice.clientId);
-      const project = invoice.projectId ? this.projects.get(invoice.projectId) : null;
+      const project = invoice.projectId ? this.projects.get(invoice.projectId) || null : null;
       return { ...invoice, client: client!, project };
     });
   }
@@ -165,7 +297,7 @@ export class MemStorage implements IStorage {
     if (!invoice) return undefined;
     
     const client = this.clients.get(invoice.clientId);
-    const project = invoice.projectId ? this.projects.get(invoice.projectId) : null;
+    const project = invoice.projectId ? this.projects.get(invoice.projectId) || null : null;
     return { ...invoice, client: client!, project };
   }
 
@@ -178,11 +310,16 @@ export class MemStorage implements IStorage {
     const invoiceNumber = `INV-${String(this.invoiceCounter++).padStart(3, '0')}`;
     
     const invoice: Invoice = {
-      ...insertInvoice,
       id,
       invoiceNumber,
+      clientId: insertInvoice.clientId,
+      projectId: insertInvoice.projectId || null,
       amount: insertInvoice.amount,
+      status: insertInvoice.status || "pending",
+      issueDate: insertInvoice.issueDate || new Date(),
+      dueDate: insertInvoice.dueDate,
       paidDate: insertInvoice.status === 'paid' ? new Date() : null,
+      description: insertInvoice.description || null,
       createdAt: new Date(),
     };
     this.invoices.set(id, invoice);

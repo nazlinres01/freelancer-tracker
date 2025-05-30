@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Mail, Phone, Building } from "lucide-react";
+import { Plus, Search, MoreHorizontal, Edit, Trash2, Mail, Phone, Building, Users } from "lucide-react";
 import ClientForm from "@/components/forms/client-form";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
