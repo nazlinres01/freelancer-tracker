@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Plus, Search, MoreHorizontal, Edit, Trash2, FileText, User, Calendar, DollarSign } from "lucide-react";
 import SimpleInvoiceForm from "@/components/forms/simple-invoice-form";
+import DeleteConfirmationDialog from "@/components/ui/delete-confirmation-dialog";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { InvoiceWithProject } from "@shared/schema";
@@ -28,6 +29,8 @@ export default function Invoices() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithProject | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState<InvoiceWithProject | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

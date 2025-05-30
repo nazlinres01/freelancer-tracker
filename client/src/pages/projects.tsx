@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Plus, Search, MoreHorizontal, Edit, Trash2, User, DollarSign, Calendar, CheckCircle, Play, Pause } from "lucide-react";
 import ProjectForm from "@/components/forms/project-form";
+import DeleteConfirmationDialog from "@/components/ui/delete-confirmation-dialog";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { ProjectWithClient } from "@shared/schema";
@@ -28,6 +29,8 @@ export default function Projects() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProject, setSelectedProject] = useState<ProjectWithClient | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<ProjectWithClient | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -71,9 +74,16 @@ export default function Projects() {
     setIsFormOpen(true);
   };
 
-  const handleDeleteProject = (id: number) => {
-    if (confirm("Are you sure you want to delete this project?")) {
-      deleteMutation.mutate(id);
+  const handleDeleteProject = (project: ProjectWithClient) => {
+    setProjectToDelete(project);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (projectToDelete) {
+      deleteMutation.mutate(projectToDelete.id);
+      setDeleteDialogOpen(false);
+      setProjectToDelete(null);
     }
   };
 
@@ -284,7 +294,7 @@ export default function Projects() {
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem 
-                            onClick={() => handleDeleteProject(project.id)}
+                            onClick={() => handleDeleteProject(project)}
                             className="text-destructive"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
@@ -324,6 +334,14 @@ export default function Projects() {
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         project={selectedProject}
+      />
+
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Project"
+        description={`Are you sure you want to delete "${projectToDelete?.title}"? This action cannot be undone and will also delete all associated invoices.`}
       />
     </div>
   );
