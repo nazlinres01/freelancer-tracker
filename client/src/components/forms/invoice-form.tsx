@@ -69,7 +69,8 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
 
   useEffect(() => {
     if (invoice) {
-      form.reset({
+      console.log("Invoice data:", invoice);
+      const resetData = {
         clientId: invoice.clientId || undefined,
         projectId: invoice.projectId || undefined,
         amount: invoice.amount || "",
@@ -81,7 +82,9 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
           return date;
         })(),
         description: invoice.description || "",
-      });
+      };
+      console.log("Reset data:", resetData);
+      form.reset(resetData);
     } else {
       form.reset({
         clientId: undefined,
