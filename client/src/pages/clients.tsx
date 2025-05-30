@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Plus, Search, MoreHorizontal, Edit, Trash2, Mail, Phone, Building, Users } from "lucide-react";
 import ClientForm from "@/components/forms/client-form";
+import DeleteConfirmationDialog from "@/components/ui/delete-confirmation-dialog";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { Client } from "@shared/schema";
@@ -28,6 +29,8 @@ export default function Clients() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -71,9 +74,16 @@ export default function Clients() {
     setIsFormOpen(true);
   };
 
-  const handleDeleteClient = (id: number) => {
-    if (confirm("Are you sure you want to delete this client?")) {
-      deleteMutation.mutate(id);
+  const handleDeleteClient = (client: Client) => {
+    setClientToDelete(client);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (clientToDelete) {
+      deleteMutation.mutate(clientToDelete.id);
+      setDeleteDialogOpen(false);
+      setClientToDelete(null);
     }
   };
 
@@ -203,7 +213,7 @@ export default function Clients() {
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleDeleteClient(client.id)}
+                            onClick={() => handleDeleteClient(client)}
                             className="text-destructive"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
@@ -243,6 +253,14 @@ export default function Clients() {
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         client={selectedClient}
+      />
+
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={confirmDelete}
+        title="Delete Client"
+        description={`Are you sure you want to delete "${clientToDelete?.name}"? This action cannot be undone and will also delete all associated projects and invoices.`}
       />
     </div>
   );
