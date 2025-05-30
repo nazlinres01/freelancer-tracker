@@ -28,6 +28,7 @@ import {
 import { insertProjectSchema, type InsertProject, type Project } from "@shared/schema";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 interface ProjectFormProps {
   open: boolean;
