@@ -164,15 +164,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const rawData = req.body;
       
-      // Convert string dates to Date objects
-      const processedData = {
-        ...rawData,
-        issueDate: rawData.issueDate ? new Date(rawData.issueDate) : undefined,
-        dueDate: rawData.dueDate ? new Date(rawData.dueDate) : undefined,
-        paidDate: rawData.paidDate ? new Date(rawData.paidDate) : undefined,
-      };
+      // Convert string dates to Date objects before validation
+      if (rawData.issueDate && typeof rawData.issueDate === 'string') {
+        rawData.issueDate = new Date(rawData.issueDate);
+      }
+      if (rawData.dueDate && typeof rawData.dueDate === 'string') {
+        rawData.dueDate = new Date(rawData.dueDate);
+      }
+      if (rawData.paidDate && typeof rawData.paidDate === 'string') {
+        rawData.paidDate = new Date(rawData.paidDate);
+      }
       
-      const data = insertInvoiceSchema.parse(processedData);
+      const data = insertInvoiceSchema.parse(rawData);
       const invoice = await storage.createInvoice(data);
       res.status(201).json(invoice);
     } catch (error) {
