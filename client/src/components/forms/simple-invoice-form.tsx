@@ -111,8 +111,8 @@ export default function SimpleInvoiceForm({ open, onOpenChange }: SimpleInvoiceF
       projectId: formData.projectId ? parseInt(formData.projectId) : undefined,
       amount: formData.amount,
       status: formData.status,
-      issueDate: new Date(formData.issueDate),
-      dueDate: new Date(formData.dueDate),
+      issueDate: formData.issueDate,
+      dueDate: formData.dueDate,
       description: formData.description || undefined,
     };
 

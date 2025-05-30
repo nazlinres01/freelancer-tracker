@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Users, Briefcase, FileText, BarChart3, ChartLine } from "lucide-react";
+import { Home, Users, Briefcase, FileText, BarChart3, ChartLine, User } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: Home },
@@ -7,6 +7,7 @@ const navigation = [
   { name: "Projects", href: "/projects", icon: Briefcase },
   { name: "Invoices", href: "/invoices", icon: FileText },
   { name: "Reports", href: "/reports", icon: BarChart3 },
+  { name: "Profile", href: "/profile", icon: User },
 ];
 
 export default function Sidebar() {

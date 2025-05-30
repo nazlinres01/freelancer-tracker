@@ -60,6 +60,9 @@ export const insertInvoiceSchema = createInsertSchema(invoices).omit({
   invoiceNumber: true,
 }).extend({
   amount: z.string(),
+  issueDate: z.string().transform((val) => new Date(val)),
+  dueDate: z.string().transform((val) => new Date(val)),
+  paidDate: z.string().transform((val) => new Date(val)).optional().nullable(),
 });
 
 // Types
