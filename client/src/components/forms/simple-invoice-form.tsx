@@ -109,7 +109,7 @@ export default function SimpleInvoiceForm({ open, onOpenChange }: SimpleInvoiceF
 
     const submitData = {
       clientId: parseInt(formData.clientId),
-      projectId: formData.projectId ? parseInt(formData.projectId) : undefined,
+      projectId: (formData.projectId && formData.projectId !== "none") ? parseInt(formData.projectId) : null,
       amount: formData.amount,
       status: formData.status,
       issueDate: formData.issueDate,
@@ -162,7 +162,7 @@ export default function SimpleInvoiceForm({ open, onOpenChange }: SimpleInvoiceF
                 <SelectValue placeholder="Select a project" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No project</SelectItem>
+                <SelectItem value="none">No project</SelectItem>
                 {clientProjects.map((project: any) => (
                   <SelectItem key={project.id} value={project.id.toString()}>
                     {project.title}

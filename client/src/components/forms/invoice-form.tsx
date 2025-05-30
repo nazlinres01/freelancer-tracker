@@ -185,7 +185,7 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">No project</SelectItem>
+                      <SelectItem value="none">No project</SelectItem>
                       {clientProjects.map((project: any) => (
                         <SelectItem key={project.id} value={project.id.toString()}>
                           {project.title}
