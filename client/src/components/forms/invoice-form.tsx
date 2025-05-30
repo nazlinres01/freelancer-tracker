@@ -52,19 +52,51 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
   const form = useForm<InsertInvoice>({
     resolver: zodResolver(insertInvoiceSchema),
     defaultValues: {
-      clientId: invoice?.clientId || undefined,
-      projectId: invoice?.projectId || undefined,
-      amount: invoice?.amount || "",
-      status: invoice?.status || "pending",
-      issueDate: invoice?.issueDate ? new Date(invoice.issueDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-      dueDate: invoice?.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : (() => {
+      clientId: undefined,
+      projectId: undefined,
+      amount: "",
+      status: "pending",
+      issueDate: new Date(),
+      dueDate: (() => {
         const date = new Date();
         date.setDate(date.getDate() + 30);
-        return date.toISOString().split('T')[0];
+        return date;
       })(),
-      description: invoice?.description || "",
+      description: "",
     },
   });
+
+  useEffect(() => {
+    if (invoice) {
+      form.reset({
+        clientId: invoice.clientId || undefined,
+        projectId: invoice.projectId || undefined,
+        amount: invoice.amount || "",
+        status: invoice.status || "pending",
+        issueDate: invoice.issueDate ? new Date(invoice.issueDate) : new Date(),
+        dueDate: invoice.dueDate ? new Date(invoice.dueDate) : (() => {
+          const date = new Date();
+          date.setDate(date.getDate() + 30);
+          return date;
+        })(),
+        description: invoice.description || "",
+      });
+    } else {
+      form.reset({
+        clientId: undefined,
+        projectId: undefined,
+        amount: "",
+        status: "pending",
+        issueDate: new Date(),
+        dueDate: (() => {
+          const date = new Date();
+          date.setDate(date.getDate() + 30);
+          return date;
+        })(),
+        description: "",
+      });
+    }
+  }, [invoice, form]);
 
   const selectedClientId = form.watch("clientId");
   const clientProjects = projects?.filter((p: any) => p.clientId === selectedClientId) || [];

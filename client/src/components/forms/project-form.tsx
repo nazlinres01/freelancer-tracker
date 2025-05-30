@@ -48,16 +48,42 @@ export default function ProjectForm({ open, onOpenChange, project }: ProjectForm
   const form = useForm<InsertProject>({
     resolver: zodResolver(insertProjectSchema),
     defaultValues: {
-      title: project?.title || "",
-      description: project?.description || "",
-      clientId: project?.clientId || 0,
-      status: project?.status || "active",
-      hourlyRate: project?.hourlyRate || "",
-      totalBudget: project?.totalBudget || "",
-      startDate: project?.startDate ? new Date(project.startDate) : undefined,
-      endDate: project?.endDate ? new Date(project.endDate) : undefined,
+      title: "",
+      description: "",
+      clientId: 0,
+      status: "active",
+      hourlyRate: "",
+      totalBudget: "",
+      startDate: undefined,
+      endDate: undefined,
     },
   });
+
+  useEffect(() => {
+    if (project) {
+      form.reset({
+        title: project.title || "",
+        description: project.description || "",
+        clientId: project.clientId || 0,
+        status: project.status || "active",
+        hourlyRate: project.hourlyRate || "",
+        totalBudget: project.totalBudget || "",
+        startDate: project.startDate ? new Date(project.startDate) : undefined,
+        endDate: project.endDate ? new Date(project.endDate) : undefined,
+      });
+    } else {
+      form.reset({
+        title: "",
+        description: "",
+        clientId: 0,
+        status: "active",
+        hourlyRate: "",
+        totalBudget: "",
+        startDate: undefined,
+        endDate: undefined,
+      });
+    }
+  }, [project, form]);
 
   const createMutation = useMutation({
     mutationFn: api.projects.create,
