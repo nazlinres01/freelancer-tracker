@@ -182,7 +182,7 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
                       field.onChange(parseInt(value));
                       form.setValue("projectId", undefined);
                     }}
-                    value={field.value?.toString() || ""}
+                    value={field.value ? field.value.toString() : ""}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -209,8 +209,8 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
                 <FormItem>
                   <FormLabel>Project (Optional)</FormLabel>
                   <Select 
-                    onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)}
-                    value={field.value?.toString()}
+                    onValueChange={(value) => field.onChange(value === "none" ? undefined : parseInt(value))}
+                    value={field.value ? field.value.toString() : "none"}
                   >
                     <FormControl>
                       <SelectTrigger>
