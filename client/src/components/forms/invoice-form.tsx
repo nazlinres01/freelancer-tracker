@@ -68,24 +68,27 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
   });
 
   useEffect(() => {
-    if (invoice) {
-      console.log("Invoice data:", invoice);
-      const resetData = {
-        clientId: invoice.clientId || undefined,
-        projectId: invoice.projectId || undefined,
-        amount: invoice.amount || "",
-        status: invoice.status || "pending",
-        issueDate: invoice.issueDate ? new Date(invoice.issueDate) : new Date(),
-        dueDate: invoice.dueDate ? new Date(invoice.dueDate) : (() => {
-          const date = new Date();
-          date.setDate(date.getDate() + 30);
-          return date;
-        })(),
-        description: invoice.description || "",
-      };
-      console.log("Reset data:", resetData);
-      form.reset(resetData);
-    } else {
+    if (open && invoice) {
+      console.log("Form opened with invoice:", invoice);
+      setTimeout(() => {
+        const resetData = {
+          clientId: invoice.clientId || undefined,
+          projectId: invoice.projectId || undefined,
+          amount: invoice.amount || "",
+          status: invoice.status || "pending",
+          issueDate: invoice.issueDate ? new Date(invoice.issueDate) : new Date(),
+          dueDate: invoice.dueDate ? new Date(invoice.dueDate) : (() => {
+            const date = new Date();
+            date.setDate(date.getDate() + 30);
+            return date;
+          })(),
+          description: invoice.description || "",
+        };
+        console.log("Resetting form with data:", resetData);
+        form.reset(resetData);
+      }, 100);
+    } else if (open && !invoice) {
+      console.log("Form opened for new invoice");
       form.reset({
         clientId: undefined,
         projectId: undefined,
@@ -100,7 +103,7 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
         description: "",
       });
     }
-  }, [invoice, form]);
+  }, [open, invoice, form]);
 
   const selectedClientId = form.watch("clientId");
   const clientProjects = projects?.filter((p: any) => p.clientId === selectedClientId) || [];
