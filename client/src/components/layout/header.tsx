@@ -1,6 +1,5 @@
-import { useLocation } from "wouter";
-import { Bell, Search, Menu, User } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { useLocation, Link } from "wouter";
+import { Bell, Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
@@ -15,7 +14,6 @@ const pageNames: { [key: string]: string } = {
 
 export default function Header() {
   const [location] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
   
   const currentPageName = pageNames[location] || "Page";
 
@@ -34,17 +32,6 @@ export default function Header() {
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-64 pr-10"
-            />
-            <Search className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
-          </div>
-          
           <Button
             variant="ghost"
             size="sm"
