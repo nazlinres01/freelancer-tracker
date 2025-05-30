@@ -276,7 +276,7 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Invoice description" {...field} />
+                    <Textarea placeholder="Invoice description" {...field} value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

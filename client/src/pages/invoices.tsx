@@ -142,7 +142,7 @@ export default function Invoices() {
           <h2 className="text-2xl font-bold text-foreground">Invoices</h2>
           <p className="text-muted-foreground">Track your billing and payments</p>
         </div>
-        <Button onClick={handleAddInvoice}>
+        <Button onClick={handleAddInvoice} className="bg-primary hover:bg-primary/90">
           <Plus className="w-4 h-4 mr-2" />
           Create Invoice
         </Button>
