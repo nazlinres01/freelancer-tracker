@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,24 +24,42 @@ import { useToast } from "@/hooks/use-toast";
 interface SimpleInvoiceFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  invoice?: any;
 }
 
-export default function SimpleInvoiceForm({ open, onOpenChange }: SimpleInvoiceFormProps) {
+export default function SimpleInvoiceForm({ open, onOpenChange, invoice }: SimpleInvoiceFormProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [formData, setFormData] = useState({
-    clientId: "",
-    projectId: "",
-    amount: "",
-    status: "pending",
-    issueDate: new Date().toISOString().split('T')[0],
-    dueDate: (() => {
-      const date = new Date();
-      date.setDate(date.getDate() + 30);
-      return date.toISOString().split('T')[0];
-    })(),
-    description: "",
+  const [formData, setFormData] = useState(() => {
+    if (invoice) {
+      return {
+        clientId: invoice.clientId?.toString() || "",
+        projectId: invoice.projectId?.toString() || "",
+        amount: invoice.amount || "",
+        status: invoice.status || "pending",
+        issueDate: invoice.issueDate ? new Date(invoice.issueDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : (() => {
+          const date = new Date();
+          date.setDate(date.getDate() + 30);
+          return date.toISOString().split('T')[0];
+        })(),
+        description: invoice.description || "",
+      };
+    }
+    return {
+      clientId: "",
+      projectId: "",
+      amount: "",
+      status: "pending",
+      issueDate: new Date().toISOString().split('T')[0],
+      dueDate: (() => {
+        const date = new Date();
+        date.setDate(date.getDate() + 30);
+        return date.toISOString().split('T')[0];
+      })(),
+      description: "",
+    };
   });
 
   const { data: clients } = useQuery({
@@ -53,6 +71,27 @@ export default function SimpleInvoiceForm({ open, onOpenChange }: SimpleInvoiceF
     queryKey: ["/api/projects"],
     queryFn: api.projects.getAll,
   });
+
+  // Update form data when invoice prop changes
+  useEffect(() => {
+    if (open && invoice) {
+      setFormData({
+        clientId: invoice.clientId?.toString() || "",
+        projectId: invoice.projectId?.toString() || "",
+        amount: invoice.amount || "",
+        status: invoice.status || "pending",
+        issueDate: invoice.issueDate ? new Date(invoice.issueDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : (() => {
+          const date = new Date();
+          date.setDate(date.getDate() + 30);
+          return date.toISOString().split('T')[0];
+        })(),
+        description: invoice.description || "",
+      });
+    } else if (open && !invoice) {
+      resetForm();
+    }
+  }, [open, invoice]);
 
   const selectedClientId = parseInt(formData.clientId) || 0;
   const clientProjects = projects?.filter((p: any) => p.clientId === selectedClientId) || [];
@@ -74,6 +113,28 @@ export default function SimpleInvoiceForm({ open, onOpenChange }: SimpleInvoiceF
       toast({
         title: "Error",
         description: "Failed to create invoice",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (data: any) => apiRequest("PUT", `/api/invoices/${invoice?.id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard/monthly-earnings"] });
+      toast({
+        title: "Success",
+        description: "Invoice updated successfully",
+      });
+      onOpenChange(false);
+      resetForm();
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update invoice",
         variant: "destructive",
       });
     },
