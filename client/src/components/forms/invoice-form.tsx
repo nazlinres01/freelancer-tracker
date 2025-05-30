@@ -52,15 +52,15 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
   const form = useForm<InsertInvoice>({
     resolver: zodResolver(insertInvoiceSchema),
     defaultValues: {
-      clientId: invoice?.clientId || 0,
+      clientId: invoice?.clientId || undefined,
       projectId: invoice?.projectId || undefined,
       amount: invoice?.amount || "",
       status: invoice?.status || "pending",
-      issueDate: invoice?.issueDate ? new Date(invoice.issueDate) : new Date(),
-      dueDate: invoice?.dueDate ? new Date(invoice.dueDate) : (() => {
+      issueDate: invoice?.issueDate ? new Date(invoice.issueDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      dueDate: invoice?.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : (() => {
         const date = new Date();
-        date.setDate(date.getDate() + 30); // Default 30 days from now
-        return date;
+        date.setDate(date.getDate() + 30);
+        return date.toISOString().split('T')[0];
       })(),
       description: invoice?.description || "",
     },
@@ -113,11 +113,17 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
     },
   });
 
-  const onSubmit = (data: InsertInvoice) => {
+  const onSubmit = (data: any) => {
+    const formattedData = {
+      ...data,
+      issueDate: new Date(data.issueDate),
+      dueDate: new Date(data.dueDate),
+    };
+    
     if (invoice) {
-      updateMutation.mutate({ id: invoice.id, data });
+      updateMutation.mutate({ id: invoice.id, data: formattedData });
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(formattedData);
     }
   };
 
@@ -143,7 +149,7 @@ export default function InvoiceForm({ open, onOpenChange, invoice }: InvoiceForm
                       field.onChange(parseInt(value));
                       form.setValue("projectId", undefined);
                     }}
-                    value={field.value?.toString()}
+                    value={field.value?.toString() || ""}
                   >
                     <FormControl>
                       <SelectTrigger>
