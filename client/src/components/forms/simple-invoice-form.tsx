@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { api } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface SimpleInvoiceFormProps {
@@ -57,7 +58,7 @@ export default function SimpleInvoiceForm({ open, onOpenChange }: SimpleInvoiceF
   const clientProjects = projects?.filter((p: any) => p.clientId === selectedClientId) || [];
 
   const createMutation = useMutation({
-    mutationFn: api.invoices.create,
+    mutationFn: (data: any) => apiRequest("POST", "/api/invoices", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/invoices"] });
       queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
