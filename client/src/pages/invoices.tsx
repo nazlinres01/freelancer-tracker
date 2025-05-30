@@ -19,7 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Plus, Search, MoreHorizontal, Edit, Trash2, FileText, User, Calendar, DollarSign } from "lucide-react";
-import InvoiceForm from "@/components/forms/invoice-form";
+import SimpleInvoiceForm from "@/components/forms/simple-invoice-form";
 import { api } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { InvoiceWithProject } from "@shared/schema";
@@ -326,10 +326,9 @@ export default function Invoices() {
         </CardContent>
       </Card>
 
-      <InvoiceForm
+      <SimpleInvoiceForm
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
-        invoice={selectedInvoice}
       />
     </div>
   );
