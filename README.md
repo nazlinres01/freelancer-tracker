@@ -2,6 +2,10 @@
 
 A comprehensive earnings and client management platform designed to streamline freelance business operations.
 
+
+![Resim10](https://github.com/user-attachments/assets/6bca68b4-270f-4b2f-a6b5-5229b8003cbd)
+
+
 ## Features
 
 - **Client Management** - Track client information and relationships
